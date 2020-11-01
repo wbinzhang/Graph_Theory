@@ -2,6 +2,29 @@ import numpy as np
 import matplotlib.pyplot as plt
 import networkx as nx
 
+class Edge(object):
+    def __init__(self, u, v, w):
+        self.u = u
+        self.v = v
+        self.w = w
+
+    def __str__(self):
+        return str(self.u) + str(self.v) + str(self.w)
+
+
+'''获取网络各条边的信息'''
+def get_edges():
+    n, m = list(map(int, input('请输入图的顶点个数及其边数（以空格分隔,例如：5 6）：\n').split()))
+
+    # 输入各条边的信息
+    edges = []
+    for i in range(m):
+        u, v, w = list(map(int, input(f'请输入网络第{i + 1}/{m}条边的信息（以空格分隔，例如：1 2 5）：\n').split()))
+        # 输入的点是1开始的，-1改为0开始的
+        edges.append(Edge(u - 1, v - 1, w))
+
+    return n, m, edges
+
 class Solve_Dijkstra(object):
     def __init__(self):
         self.raw = [] #缓存矩阵索引
@@ -9,20 +32,23 @@ class Solve_Dijkstra(object):
         self.m = 0
         self.n = 0
 
+    '''将网络转换成矩阵表达'''
+    def get_graph(self, n, edges):
+        graph_matrix = np.full(shape=(n, n),fill_value=999)
+        for edge in edges:
+            graph_matrix[edge.u, edge.v] = edge.w
+            graph_matrix[edge.v, edge.u] = edge.w
+
+        return graph_matrix
+
 
     # dijkstra算法实现
-    def dijkstra(self, graph_list):
-        # 判断图是否为空，如果为空直接退出
-        if graph_list is None:
-            return None
-        # print(len(graph))
+    def dijkstra(self, graph_matrix):
 
         #构造一个转移矩阵用来存放最小生成树的权重
-        transfer_matrix = np.zeros([len(graph_list), len(graph_list)])
+        transfer_matrix = np.zeros([len(graph_matrix), len(graph_matrix)])
         # print(transfer_matrix)
 
-        # 格式化矩阵
-        graph_matrix = np.array(graph_list)
         self.Draw_graph(graph_matrix)
 
         # raw = []
@@ -87,11 +113,13 @@ class Solve_Dijkstra(object):
         plt.show()
 
 if __name__ == '__main__':
-    graph_list = [ [999, 50, 30, 40, 25],
-            [50, 999, 15, 20, 999],
-            [30, 15, 999, 10, 20],
-            [40, 20, 10, 999, 10],
-            [25, 999, 20, 10, 999]]
+    # graph_list = [ [999, 50, 30, 40, 25],
+    #         [50, 999, 15, 20, 999],
+    #         [30, 15, 999, 10, 20],
+    #         [40, 20, 10, 999, 10],
+    #         [25, 999, 20, 10, 999]]
 
+    n, m, edges = get_edges()
     solve_dijkstra = Solve_Dijkstra()
-    solve_dijkstra.dijkstra(graph_list)
+    graph_matrix = solve_dijkstra.get_graph(n, edges)
+    solve_dijkstra.dijkstra(graph_matrix)
